@@ -1,7 +1,7 @@
 ﻿// From: http://wiki.unity3d.com/index.php/Singleton
 using UnityEngine;
  
-namespace AltProg
+namespace AltProg.Util
 {
 
 /// <summary>

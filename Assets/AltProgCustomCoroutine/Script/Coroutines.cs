@@ -8,7 +8,7 @@ using Object = System.Object;
 namespace AltProg
 {
 
-public class Coroutines : Singleton<Coroutines> 
+public class Coroutines : Util.Singleton<Coroutines> 
 {
 	// Cr = Coroutine
 	// Mt = Main Thread

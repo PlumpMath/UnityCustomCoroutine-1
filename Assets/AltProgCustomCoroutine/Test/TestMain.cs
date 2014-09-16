@@ -4,7 +4,7 @@ using System.Collections;
 using AltProg;
 using Object = System.Object;
 
-namespace AltProg
+namespace AltProg.Test
 {
 
 public class TestMain : MonoBehaviour 

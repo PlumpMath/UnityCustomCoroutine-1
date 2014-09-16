@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Collections.Generic;
 
-namespace AltProg
+namespace AltProg.Test
 {
 
 public static class TestApi 
