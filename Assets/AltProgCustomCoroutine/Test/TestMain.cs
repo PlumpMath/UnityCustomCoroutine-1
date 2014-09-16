@@ -22,6 +22,11 @@ public class TestMain : MonoBehaviour
 		Coroutines.Start( TestTooFastCallback() );
 
 		Coroutines.Start( TestMultiLevel() );
+
+		Coroutines.Start( TestException() );
+
+		// Unity Coroutine
+		StartCoroutine( TestException() );
 	}
 
 	void Update()
@@ -82,6 +87,15 @@ public class TestMain : MonoBehaviour
 		yield return null;
 
 		TestUtil.AssertEq( 2, updateCount );
+	}
+
+	IEnumerator TestException()
+	{
+		throw new Exception("Test");
+
+		yield return null;
+
+		TestUtil.Fail( "After Exception" );
 	}
 }
 

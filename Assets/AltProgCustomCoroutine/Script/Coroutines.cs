@@ -60,8 +60,23 @@ public class Coroutines : Util.Singleton<Coroutines>
 	{
 		Coroutine co = node.Value;
 
-		// Continue Coroutine
-		bool hasNext = co.Enumerator.MoveNext();
+		bool hasNext;
+
+		try
+		{
+			// Continue Coroutine
+			hasNext = co.Enumerator.MoveNext();
+		}
+		catch( Exception e)
+		{
+			Debug.LogException( e );
+			
+			// Cancel the coroutine
+			// (node.List will be activeCoMt.)
+			node.List.Remove( node );
+			return;
+		}
+
 
 		// end of coroutine
 		if ( false == hasNext )

@@ -21,6 +21,11 @@ public static class TestUtil
 		}
 	}
 
+	public static void Fail( string format, params Object[] args )
+	{
+		Debug.LogError( "[Fail] " + string.Format( format, args ) );
+	}
+
 	public static void Assert( bool expr, string format, params Object[] args )
 	{
 		if ( expr )
