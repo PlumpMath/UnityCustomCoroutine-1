@@ -12,10 +12,10 @@ public class Coroutines : Util.Singleton<Coroutines>
 {
 	// Cr = Coroutine
 	// Mt = Main Thread
-	LinkedList<Coroutine> activeCrMt = new LinkedList<Coroutine>();
-	LinkedList<Coroutine> activeCrMtNew = new LinkedList<Coroutine>();
-	LinkedList<Coroutine> activeCr = new LinkedList<Coroutine>();
-	Dictionary<IAsyncResult, Coroutine> inactiveCr = new Dictionary<IAsyncResult, Coroutine>();
+	LinkedList<ICoroutineImpl> activeCrMt = new LinkedList<ICoroutineImpl>();
+	LinkedList<ICoroutineImpl> activeCrMtNew = new LinkedList<ICoroutineImpl>();
+	LinkedList<ICoroutineImpl> activeCr = new LinkedList<ICoroutineImpl>();
+	Dictionary<IAsyncResult, ICoroutineImpl> inactiveCr = new Dictionary<IAsyncResult, ICoroutineImpl>();
 
 	void Update()
 	{
@@ -44,7 +44,7 @@ public class Coroutines : Util.Singleton<Coroutines>
 			}
 		}
 
-		LinkedListNode<Coroutine> node = activeCrMt.First;
+		LinkedListNode<ICoroutineImpl> node = activeCrMt.First;
 		while ( node != null )
 		{
 			// in case of remove the node inside MoveNext()
@@ -56,9 +56,9 @@ public class Coroutines : Util.Singleton<Coroutines>
 		}
 	}
 
-	void MoveNext( LinkedListNode<Coroutine> node )
+	void MoveNext( LinkedListNode<ICoroutineImpl> node )
 	{
-		Coroutine co = node.Value;
+		ICoroutineImpl co = node.Value;
 
 		bool hasNext;
 
@@ -69,11 +69,12 @@ public class Coroutines : Util.Singleton<Coroutines>
 		}
 		catch( Exception e)
 		{
-			Debug.LogException( e );
+			co.Exception = e;
 			
-			// Cancel the coroutine
+			// Finish the coroutine
 			// (node.List will be activeCoMt.)
 			node.List.Remove( node );
+			TryAsyncCallback( (IAsyncResult)co, false );
 			return;
 		}
 
@@ -83,7 +84,7 @@ public class Coroutines : Util.Singleton<Coroutines>
 		{
 			// (node.List will be activeCoMt.)
 			node.List.Remove( node );
-			TryAsyncCallback( co, false );
+			TryAsyncCallback( (IAsyncResult)co, false );
 			return;
 		}
 
@@ -96,6 +97,7 @@ public class Coroutines : Util.Singleton<Coroutines>
 			// Do nothing
 			return;
 		}
+		// Coroutine or other async operations
 		else if ( o is IAsyncResult )
 		{
 			var ar = (IAsyncResult)o;
@@ -120,6 +122,18 @@ public class Coroutines : Util.Singleton<Coroutines>
 				return;
 			}
 		}
+		// Final return value of coroutine
+		else if ( o is IResult )
+		{
+			// Set the result
+			co.Result = (IResult)o;
+
+			// Finish the current coroutine
+			// (node.List will be activeCoMt.)
+			node.List.Remove( node );
+			TryAsyncCallback( (IAsyncResult)co, false );
+			return;
+		}
 		else
 		{
 			Debug.LogError( string.Format( "Unknown Enumerator Item. '{0}'", o ) );
@@ -129,14 +143,19 @@ public class Coroutines : Util.Singleton<Coroutines>
 
 	public static ICoroutine Start( IEnumerator en )
 	{
-		return Instance.StartImpl( en );
+		return Instance.StartImpl<object>( en );
 	}
 
-	ICoroutine StartImpl( IEnumerator en )
+	public static ICoroutine<T> Start<T>( IEnumerator en )
 	{
-		var co = new Coroutine(en);
+		return Instance.StartImpl<T>( en );
+	}
 
-		var node = new LinkedListNode<Coroutine>( co );
+	ICoroutine<T> StartImpl<T>( IEnumerator en )
+	{
+		var co = new Coroutine<T>(en);
+
+		var node = new LinkedListNode<ICoroutineImpl>( co );
 		activeCrMtNew.AddLast( node );
 
 		// Execute the first part of the coroutine
@@ -152,7 +171,7 @@ public class Coroutines : Util.Singleton<Coroutines>
 
 	void TryAsyncCallback( IAsyncResult ar, bool logError )
 	{
-		Coroutine co;
+		ICoroutineImpl co;
 
 		lock( inactiveCr )
 		{

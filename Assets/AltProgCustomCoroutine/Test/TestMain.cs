@@ -23,10 +23,16 @@ public class TestMain : MonoBehaviour
 
 		Coroutines.Start( TestMultiLevel() );
 
-		Coroutines.Start( TestException() );
+		//Coroutines.Start( TestException() );
 
 		// Unity Coroutine
-		StartCoroutine( TestException() );
+		//StartCoroutine( TestException() );
+	
+		Coroutines.Start( TestGetResult() );
+
+		Coroutines.Start( TestGetResult_InvalidType() );
+
+		Coroutines.Start( TestGetResult_Exception() );
 	}
 
 	void Update()
@@ -89,6 +95,7 @@ public class TestMain : MonoBehaviour
 		TestUtil.AssertEq( 2, updateCount );
 	}
 
+	/*
 	IEnumerator TestException()
 	{
 		throw new Exception("Test");
@@ -96,6 +103,64 @@ public class TestMain : MonoBehaviour
 		yield return null;
 
 		TestUtil.Fail( "After Exception" );
+	}
+	*/
+
+	IEnumerator TestGetResultApi()
+	{
+		yield return null;
+		yield return Result.New(33);
+		throw new Exception("Do Not Reach");
+	}
+
+	IEnumerator TestGetResult()
+	{
+		var co = Coroutines.Start<int>( TestGetResultApi() );
+		yield return co;
+
+		TestUtil.AssertEq( 33, co.Get() );
+	}
+
+	IEnumerator TestGetResult_InvalidType()
+	{
+		var co = Coroutines.Start<string>( TestGetResultApi() );
+		yield return co;
+
+		try
+		{
+			co.Get();
+		}
+		catch(Exception )
+		{
+			Debug.Log( "OK" );
+			yield break;
+		}
+
+		Debug.LogError( "Error. No Exception" );
+	}
+
+	IEnumerator TestGetResultApi_Exception()
+	{
+		yield return null;
+		throw new Exception("Exception");
+	}
+
+	IEnumerator TestGetResult_Exception()
+	{
+		var co = Coroutines.Start<int>( TestGetResultApi_Exception() );
+		yield return co;
+
+		try
+		{
+			co.Get();
+		}
+		catch(Exception )
+		{
+			Debug.Log( "OK" );
+			yield break;
+		}
+
+		Debug.LogError( "Error. No Exception" );
 	}
 }
 
