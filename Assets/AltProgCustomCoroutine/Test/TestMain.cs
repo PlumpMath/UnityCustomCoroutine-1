@@ -126,23 +126,13 @@ public class TestMain : MonoBehaviour
 		var co = Coroutines.Start<string>( TestGetResultApi() );
 		yield return co;
 
-		try
-		{
-			co.Get();
-		}
-		catch(Exception )
-		{
-			Debug.Log( "OK" );
-			yield break;
-		}
-
-		Debug.LogError( "Error. No Exception" );
+		TestUtil.AssertThrow<Exception>( () => co.Get() );
 	}
 
 	IEnumerator TestGetResultApi_Exception()
 	{
 		yield return null;
-		throw new Exception("Exception");
+		throw new Exception("Exception in Coroutine");
 	}
 
 	IEnumerator TestGetResult_Exception()
@@ -150,17 +140,7 @@ public class TestMain : MonoBehaviour
 		var co = Coroutines.Start<int>( TestGetResultApi_Exception() );
 		yield return co;
 
-		try
-		{
-			co.Get();
-		}
-		catch(Exception )
-		{
-			Debug.Log( "OK" );
-			yield break;
-		}
-
-		Debug.LogError( "Error. No Exception" );
+		TestUtil.AssertThrow<Exception>( () => co.Get() );
 	}
 }
 

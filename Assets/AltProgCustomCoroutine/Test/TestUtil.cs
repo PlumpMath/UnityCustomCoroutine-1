@@ -21,6 +21,21 @@ public static class TestUtil
 		}
 	}
 
+	public static void AssertThrow<T>( System.Action codeblock ) where T : System.Exception
+	{
+		try
+		{
+			codeblock();
+		}
+		catch( T e )
+		{
+			Debug.Log( string.Format("[OK] Throw Exception. ( {0} : \"{1}\" )", typeof(T), e.Message ) );
+			return;
+		}
+
+		Debug.Log( string.Format("[Error] Expected Exception. But No Exception. ( {0} )", typeof(T)) );
+	}
+
 	public static void Fail( string format, params Object[] args )
 	{
 		Debug.LogError( "[Fail] " + string.Format( format, args ) );
