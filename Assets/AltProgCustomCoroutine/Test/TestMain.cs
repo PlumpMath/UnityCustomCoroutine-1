@@ -16,7 +16,6 @@ public class TestMain : MonoBehaviour
 		Coroutines.Start( TestYieldNull() );
 
 		Coroutines.Start( TestAsyncApi(0) );
-
 		Coroutines.Start( TestAsyncApi(0.1f) );
 
 		Coroutines.Start( TestTooFastCallback() );
@@ -29,10 +28,12 @@ public class TestMain : MonoBehaviour
 		//StartCoroutine( TestException() );
 	
 		Coroutines.Start( TestGetResult() );
-
 		Coroutines.Start( TestGetResult_InvalidType() );
-
 		Coroutines.Start( TestGetResult_Exception() );
+
+		Coroutines.Start( TestAsyncApiWrapper_Normal() );
+		Coroutines.Start( TestAsyncApiWrapper_BeginException() );
+		Coroutines.Start( TestAsyncApiWrapper_EndException() );
 	}
 
 	void Update()
@@ -138,6 +139,33 @@ public class TestMain : MonoBehaviour
 	IEnumerator TestGetResult_Exception()
 	{
 		var co = Coroutines.Start<int>( TestGetResultApi_Exception() );
+		yield return co;
+
+		TestUtil.AssertThrow<Exception>( () => co.Get() );
+	}
+
+	IEnumerator TestAsyncApiWrapper_Normal()
+	{
+		var co = Coroutines.Start<int>( TestApiWrapper.AddAsync( 3, 5, 0.1f ) );
+		yield return co;
+
+		TestUtil.AssertEq( 8, co.Get() );
+	}
+
+	IEnumerator TestAsyncApiWrapper_BeginException()
+	{
+		// Set 0 to the first argument to generate an exception in Begin_AddAsync()
+		var co = Coroutines.Start<int>( TestApiWrapper.AddAsync( 0, 5, 0.1f ) );
+
+		yield return co;
+
+		TestUtil.AssertThrow<Exception>( () => co.Get() );
+	}
+
+	IEnumerator TestAsyncApiWrapper_EndException()
+	{
+		// Set 0 to the second argument to generate an exception in End_AddAsync()
+		var co = Coroutines.Start<int>( TestApiWrapper.AddAsync( 3, 0, 0.1f ) );
 		yield return co;
 
 		TestUtil.AssertThrow<Exception>( () => co.Get() );

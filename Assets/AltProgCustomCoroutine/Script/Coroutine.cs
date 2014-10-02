@@ -29,7 +29,6 @@ interface ICoroutineImpl
 class Coroutine<T> : ICoroutine<T>, ICoroutine,  ICoroutineImpl
 {
 	IEnumerator en;
-	bool isCompleted;
 	IResult result;
 	Exception e;
 
@@ -62,17 +61,13 @@ class Coroutine<T> : ICoroutine<T>, ICoroutine,  ICoroutineImpl
 	Object IAsyncResult.AsyncState { get { return null; } }
 	WaitHandle IAsyncResult.AsyncWaitHandle { get { return null; } }
 	bool IAsyncResult.CompletedSynchronously { get { return false; } }
-	bool IAsyncResult.IsCompleted { get { return isCompleted;} }
+	bool IAsyncResult.IsCompleted { get { return result != null || e != null;} }
 
 	internal Coroutine( IEnumerator en )
 	{
 		this.en = en;
 	}
 
-	internal void SetCompleted()
-	{
-		isCompleted = true;
-	}
 }
 
 }

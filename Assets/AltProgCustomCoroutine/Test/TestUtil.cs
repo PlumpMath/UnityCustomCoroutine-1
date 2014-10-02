@@ -36,12 +36,12 @@ public static class TestUtil
 		Debug.Log( string.Format("[Error] Expected Exception. But No Exception. ( {0} )", typeof(T)) );
 	}
 
-	public static void Fail( string format, params Object[] args )
+	public static void Fail( string format, params object[] args )
 	{
 		Debug.LogError( "[Fail] " + string.Format( format, args ) );
 	}
 
-	public static void Assert( bool expr, string format, params Object[] args )
+	public static void Assert( bool expr, string format, params object[] args )
 	{
 		if ( expr )
 		{

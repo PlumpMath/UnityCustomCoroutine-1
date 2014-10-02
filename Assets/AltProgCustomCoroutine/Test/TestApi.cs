@@ -58,7 +58,7 @@ public static class TestApi
 		var ar = new TestAsyncResult();
 
 		ar.v = arg;
-		ar.IsCompleted = true;
+		ar.IsCompleted = true;	// IMPORTANT: Coroutines see this flag to check whether a IAsyncResult has been completed already.
 
 		cb( ar );
 

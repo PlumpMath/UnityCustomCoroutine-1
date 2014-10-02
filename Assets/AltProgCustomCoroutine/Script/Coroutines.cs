@@ -106,7 +106,7 @@ public class Coroutines : Util.Singleton<Coroutines>
 			if ( ar.IsCompleted )
 			{
 				// (node is in activeCoMt or activeCoMtNew )
-				// Do nothing.
+				// Do nothing.( = Don't remove from the active list )
 			}
 			else
 			{
