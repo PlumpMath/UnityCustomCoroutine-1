@@ -11,6 +11,8 @@ public class TestMain : MonoBehaviour
 {
 	int updateCount;
 
+	bool executedFinally;
+
 	void Start () 
 	{
 		Coroutines.Start( TestYieldNull() );
@@ -34,6 +36,8 @@ public class TestMain : MonoBehaviour
 		Coroutines.Start( TestAsyncApiWrapper_Normal() );
 		Coroutines.Start( TestAsyncApiWrapper_BeginException() );
 		Coroutines.Start( TestAsyncApiWrapper_EndException() );
+
+		Coroutines.Start( TestTryFinally() );
 	}
 
 	void Update()
@@ -170,6 +174,52 @@ public class TestMain : MonoBehaviour
 
 		TestUtil.AssertThrow<Exception>( () => co.Get() );
 	}
+
+	IEnumerator UseTryFinally()
+	{
+		try
+		{
+			yield return null;
+
+		}
+		finally
+		{
+			executedFinally = true;
+		}
+	}
+
+	IEnumerator UseTryFinally_WithException()
+	{
+		try
+		{
+			yield return null;
+
+			if ( executedFinally == false )
+				throw new Exception("UseTryFinally_WithException()");
+
+			yield return null;
+		}
+		finally
+		{
+			executedFinally = true;
+		}
+	}
+
+	IEnumerator TestTryFinally()
+	{
+		executedFinally = false;
+		yield return Coroutines.Start( UseTryFinally() );
+
+		TestUtil.AssertEq( true, executedFinally );
+
+
+
+		executedFinally = false;
+		yield return Coroutines.Start( UseTryFinally_WithException() );
+
+		TestUtil.AssertEq( true, executedFinally );
+	}
+
 }
 
 }
