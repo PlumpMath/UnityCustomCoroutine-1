@@ -64,11 +64,14 @@ public class Coroutines : Util.Singleton<Coroutines>
 
 		try
 		{
+
 			// Continue Coroutine
 			hasNext = co.Enumerator.MoveNext();
 		}
 		catch( Exception e)
 		{
+            Debug.LogWarning ("An exception has occurred while the coroutine is running. \n" + e.ToString () );
+
 			co.Exception = e;
 			
 			// Finish the coroutine
